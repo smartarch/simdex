@@ -1,18 +1,4 @@
-class AbstractMetricsCollector:
-    """Base class for all metrics collectors.
-
-    The snapshot() is inoked before every MAPE-K loop invocation to capture workers state periodically.
-    The job_finished() is invoked for every job after it is removed from the queue.
-    """
-
-    def snapshot(self, ts, workers):
-        pass  # an empty placeholder that just declares the interface
-
-    def job_finished(self, job):
-        pass  # an empty placeholder that just declares the interface
-
-    def print(self):
-        raise NotImplementedError
+from interfaces import AbstractMetricsCollector
 
 
 class PowerMetricsCollector(AbstractMetricsCollector):

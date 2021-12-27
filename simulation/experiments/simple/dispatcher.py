@@ -1,4 +1,7 @@
-class Dispatcher:
+from interfaces import AbstractDispatcher
+
+
+class SimpleDispatcher(AbstractDispatcher):
     def init(self, ts, workers):
         pass
 

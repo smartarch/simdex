@@ -1,9 +1,11 @@
-class SelfAdaptingStrategy:
-    """Represents the algorithms used for self-adaptation of the system.
+from interfaces import SelfAdaptingStrategy
 
-    The main part is hidden into mapek() method that represents one iteration of the MAPE-K loop.
-    The mapek() does not to perform the entire loop, in some invocations it can perform only data
-    gathering for instance.
+
+class SimpleSelfAdaptingStrategy(SelfAdaptingStrategy):
+    """Represents the a simple SA controller.
+
+    Activates suspended worker queues when the system gets staturated,
+    deactivates queues that are idle.
     """
 
     def init(self, ts, workers):
@@ -12,7 +14,7 @@ class SelfAdaptingStrategy:
             worker.set_attribute("active", False)
         workers[0].set_attribute("active", True)
 
-    def mapek(self, ts, workers):
+    def mapek(self, ts, workers, job=None):
         # analyse the state of the worker queues
         active = 0
         overloaded = 0

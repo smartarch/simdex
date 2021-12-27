@@ -1,30 +1,54 @@
 from workers import WorkerQueue
-from dispatcher import Dispatcher
-from sa_strategy import SelfAdaptingStrategy
+from interfaces import create_component
+
+
+def _create_instance(config):
+    """Helper function that creates instance of a component from configuration."""
+    if isinstance(config, dict):
+        if ("class" not in config):
+            raise RuntimeError("Attribute class is missing from component configuration descriptor.")
+        if ("args" not in config or (not isinstance(config["args"], dict) and not isinstance(config["args"], list))):
+            raise RuntimeError("Invalid component constructor args given in configuration descriptor.")
+        return create_component(config["class"], config["args"])
+    else:
+        return create_component(config)  # config is a string holding the class name
 
 
 class Simulation:
     """Main simulation class. Wraps the algorithm and acts as component container."""
 
     def __init__(self, configuration):
-        # TODO load actual class names from configuration
+        # load parameters from configuration and instantiate necessary components
         self.metrics = []
-        self.dispatcher = Dispatcher()
-        self.sa_strategy = SelfAdaptingStrategy()
-        self.sa_period = 60.0  # how often MAPE-K is called (in seconds)
+        if "metrics" in configuration:
+            for metric in configuration["metrics"]:
+                self.metrics.append(_create_instance(metric))
 
-        # simulation state
-        self.workers = [
-            WorkerQueue(active=True),
-            WorkerQueue(active=True),
-            WorkerQueue(active=False),
-            WorkerQueue(active=False),
-        ]
+        self.dispatcher = _create_instance(configuration["dispatcher"])
+        if "sa_strategy" in configuration:
+            self.sa_strategy = _create_instance(configuration["sa_strategy"])
 
+        # how often MAPE-K is called (in seconds)
+        self.sa_period = float(configuration["period"]) if "period" in configuration else 60.0  # one minute is default
+
+        # simulation state (worker queues)
+        if "workers" not in configuration:
+            raise RuntimeError("Workers are not specified in the configuration file.")
+
+        self.workers = []
+        if isinstance(configuration["workers"], list):
+            for worker_attrs in configuration["workers"]:
+                self.workers.append(WorkerQueue(**worker_attrs))
+        else:
+            for i in range(int(configuration["workers"])):
+                self.workers.append(WorkerQueue())
+
+        # remaining simulation variables
         self.ts = 0.0  # simulation time
-        self.next_mapek_ts = 0.0
+        self.next_mapek_ts = 0.0  # when the next MAPE-K call is scheduled
 
     def register_metrics(self, *metrics):
+        """Additional metrics components may be registered via this method (mainly for debugging purposes)."""
         for m in metrics:
             self.metrics.append(m)
 
@@ -82,6 +106,8 @@ class Simulation:
         if job:
             # regular simulation step
             self.__advance_time(job.spawn_ts)
+            if self.sa_strategy:  # mapek out of order (just before a job is dispatched)
+                self.sa_strategy.mapek(self.ts, self.workers, job)
             self.dispatcher.dispatch(job, self.workers)
         else:
             # let's wrap up the simulation

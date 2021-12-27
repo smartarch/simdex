@@ -2,20 +2,6 @@ import csv
 import gzip
 from dataclasses import dataclass
 
-# submission_id
-# solution_id
-# group_id
-# tlgroup_id
-# exercise_id
-# runtime_id
-# worker_group
-# user_id
-# start_ts
-# end_ts
-# limits
-# cpu_time
-# duration
-
 
 @dataclass
 class Job:
@@ -51,6 +37,16 @@ class Job:
 #
 
 
+def str_passthru(value):
+    """Simple string pass-through (just to simplify desing of the reader)."""
+    return value
+
+
+def bool_converter(value):
+    """Simple string to bool converter (0 = False, 1 = True)."""
+    return value == "1"
+
+
 class IntConverter:
     """Simple string to int converter (parsing decimal values)."""
 
@@ -59,20 +55,17 @@ class IntConverter:
 
 
 class FloatConverter:
-    """Simple string to float converter (parsing decimal values)."""
+    """A string to float converter (parsing decimal values) with embedded linear transformation.
 
-    def __init__(self, multiplier=1.0):
+    Parsed value x is transformed by Ax + B, where A,B are constants set in constructor.
+    """
+
+    def __init__(self, multiplier=1.0, addition=0.0):
         self.multiplier = multiplier
+        self.addition = addition
 
     def __call__(self, value):
-        return float(value) * self.multiplier
-
-
-class BoolConverter:
-    """Simple string to bool converter (0 = False, 1 = True)."""
-
-    def __call__(self, value):
-        return value == "1"
+        return float(value) * self.multiplier + self.addition
 
 
 class HashConverter:
@@ -103,11 +96,11 @@ class Reader:
             "tlgroup_id": HashConverter(),
             "exercise_id": HashConverter(),
             "runtime_id": HashConverter(),
-            "worker_group_id": HashConverter(),
+            "worker_group_id": str_passthru,
             "user_id": HashConverter(),
             "spawn_ts": FloatConverter(),
             "limits": FloatConverter(),
-            "cpu_time": BoolConverter(),
+            "cpu_time": bool_converter,
             "duration": FloatConverter(),
         }
 
