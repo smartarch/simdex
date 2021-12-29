@@ -2,14 +2,22 @@ from workers import WorkerQueue
 from interfaces import create_component
 
 
-def _create_instance(config):
+def _create_instance(config, ref_jobs):
     """Helper function that creates instance of a component from configuration."""
     if isinstance(config, dict):
-        if ("class" not in config):
-            raise RuntimeError("Attribute class is missing from component configuration descriptor.")
-        if ("args" not in config or (not isinstance(config["args"], dict) and not isinstance(config["args"], list))):
+        # Basic type checks
+        if ("class" not in config or "args" not in config):
+            raise RuntimeError("Component configuration descriptor must have 'class' and 'args' properties.")
+
+        # argument "@@ref_jobs" is replaced with ref_jobs list (special injection)
+        if isinstance(config["args"], dict):
+            args = {key: ref_jobs if val == "@@ref_jobs" else val for key, val in config["args"].items()}
+        elif isinstance(config["args"], list):
+            args = [ref_jobs if arg == "@@ref_jobs" else arg for arg in config["args"]]
+        else:
             raise RuntimeError("Invalid component constructor args given in configuration descriptor.")
-        return create_component(config["class"], config["args"])
+
+        return create_component(config["class"], args)
     else:
         return create_component(config)  # config is a string holding the class name
 
@@ -17,16 +25,16 @@ def _create_instance(config):
 class Simulation:
     """Main simulation class. Wraps the algorithm and acts as component container."""
 
-    def __init__(self, configuration):
+    def __init__(self, configuration, ref_jobs=None):
         # load parameters from configuration and instantiate necessary components
         self.metrics = []
         if "metrics" in configuration:
             for metric in configuration["metrics"]:
-                self.metrics.append(_create_instance(metric))
+                self.metrics.append(_create_instance(metric, ref_jobs))
 
-        self.dispatcher = _create_instance(configuration["dispatcher"])
+        self.dispatcher = _create_instance(configuration["dispatcher"], ref_jobs)
         if "sa_strategy" in configuration:
-            self.sa_strategy = _create_instance(configuration["sa_strategy"])
+            self.sa_strategy = _create_instance(configuration["sa_strategy"], ref_jobs)
 
         # how often MAPE-K is called (in seconds)
         self.sa_period = float(configuration["period"]) if "period" in configuration else 60.0  # one minute is default

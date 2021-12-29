@@ -58,7 +58,7 @@ class SelfAdaptingStrategy:
         (right before the job is dispatched).
         The ts holds simulation time and workers is the list of all worker queues.
         """
-        pass
+        raise NotImplementedError
 
 
 def create_component(class_name, constructor_args={}):

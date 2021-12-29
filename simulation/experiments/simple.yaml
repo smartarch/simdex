@@ -19,3 +19,7 @@ sa_strategy: experiments.simple.sa_strategy.SimpleSelfAdaptingStrategy
 metrics:
   - metrics.default.JobDelayMetricsCollector
   - metrics.default.PowerMetricsCollector
+  - class: metrics.user_experience.UserExperienceMetricsCollector
+    args:
+      - "@@ref_jobs"
+      - [ 1.5, 3.0 ]  # thresholds

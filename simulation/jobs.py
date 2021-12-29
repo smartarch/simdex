@@ -7,21 +7,26 @@ from dataclasses import dataclass
 class Job:
     """Structure represenitng one job submitted to the system."""
 
-    # data loaded from the logs
+    # fileds known when the job is created (spawned)
     solution_id: int
-    group_id: int
-    tlgroup_id: int
+    group_id: int  # corresponds to the lab group where the student gets the assignments
+    tlgroup_id: int  # top-level group corresponds to the course the student attends
     exercise_id: int
-    runtime_id: int
-    worker_group_id: int
+    runtime_id: int  # corresponds to a programming language used for the solution
+    worker_group_id: str  # identification of dedicated group of workers (possibly with specialized HW or SW installed)
     user_id: int
-    spawn_ts: float  # when the job was submitted by the user (and enqueued)
-    limits: float
-    cpu_time: bool
+    spawn_ts: float  # unix time stamp when the job was submitted by the user (and enqueued)
+    limits: float  # time limit for all tests (sum)
+    cpu_time: bool  # True if CPU time was measured (more precise), False for wall time (includes IOs, page faults, ...)
+
+    # the following fiedls were filled after the job was evaluated
+    # (the dispatcher or MAPE-K loop should not read these fields when the job is being assigned)
+    correctness: float  # how the solution was rated (on 0 - 1 scale, 1 being completely correct).
+    compilation_ok: bool  # True if the solution passed compilation, False means that no test were actually executed
     duration: float  # how long the job took (according to logs)
 
     # extra fields filled by the simulation
-    start_ts: float = 0.0  # when the processing of the job actually started
+    start_ts: float = 0.0  # when the processing of the job actually started (simulation time)
     finish_ts: float = 0.0  # when the processing ended (start_ts + duration by default)
 
     def enqueue(self, prev_job=None):
@@ -31,6 +36,28 @@ class Job:
         else:
             self.start_ts = prev_job.finish_ts  # job starts right after previous job ends
         self.finish_ts = self.start_ts + self.duration
+
+
+@dataclass
+class RefJob:
+    """Structure representing a reference solution job.
+
+    Reference solutions are used as additional data source for job duration estimation.
+    """
+
+    # fileds known when the job is created (spawned)
+    solution_id: int
+    exercise_id: int
+    runtime_id: int  # corresponds to a programming language used for the solution
+    worker_group_id: str  # identification of dedicated group of workers (possibly with specialized HW or SW installed)
+    spawn_ts: float  # unix time stamp when the job was submitted by the user (and enqueued)
+
+    # the following fiedls were filled after the job was evaluated
+    # (the dispatcher or MAPE-K loop should not read these fields when the job is being assigned)
+    correctness: float  # how the solution was rated (on 0 - 1 scale, 1 being completely correct).
+    compilation_ok: bool  # True if the solution passed compilation, False means that no test were actually executed
+    duration: float  # how long the job took (according to logs)
+
 
 #
 # Input reader and its helper classes
@@ -83,26 +110,14 @@ class HashConverter:
         return self.table[value]
 
 
-class Reader:
+class ReaderBase:
     """Reader for CSV data files with logs of job spawning."""
 
     def __init__(self, delimiter=';'):
         self.fp = None
         self.reader = None
         self.delimiter = delimiter
-        self.converters = {
-            "solution_id": HashConverter(),
-            "group_id": HashConverter(),
-            "tlgroup_id": HashConverter(),
-            "exercise_id": HashConverter(),
-            "runtime_id": HashConverter(),
-            "worker_group_id": str_passthru,
-            "user_id": HashConverter(),
-            "spawn_ts": FloatConverter(),
-            "limits": FloatConverter(),
-            "cpu_time": bool_converter,
-            "duration": FloatConverter(),
-        }
+        self.converters = {}
 
     def open(self, file):
         """Open file for reading. Must be csv or GZIPed csv."""
@@ -133,4 +148,47 @@ class Reader:
         converted = {}
         for col in self.converters:
             converted[col] = self.converters[col](row[col])
+        return converted
+
+
+class JobReader(ReaderBase):
+    def __init__(self, delimiter=';'):
+        super().__init__(delimiter)
+        self.converters = {
+            "solution_id": HashConverter(),
+            "group_id": HashConverter(),
+            "tlgroup_id": HashConverter(),
+            "exercise_id": HashConverter(),
+            "runtime_id": HashConverter(),
+            "worker_group_id": str_passthru,
+            "user_id": HashConverter(),
+            "spawn_ts": FloatConverter(),
+            "limits": FloatConverter(),
+            "cpu_time": bool_converter,
+            "correctness": FloatConverter(),
+            "compilation_ok": bool_converter,
+            "duration": FloatConverter(),
+        }
+
+    def __next__(self):
+        converted = super().__next__()
         return Job(**converted)
+
+
+class RefJobReader(ReaderBase):
+    def __init__(self, delimiter=';'):
+        super().__init__(delimiter)
+        self.converters = {
+            "solution_id": HashConverter(),
+            "exercise_id": HashConverter(),
+            "runtime_id": HashConverter(),
+            "worker_group_id": str_passthru,
+            "spawn_ts": FloatConverter(),
+            "correctness": FloatConverter(),
+            "compilation_ok": bool_converter,
+            "duration": FloatConverter(),
+        }
+
+    def __next__(self):
+        converted = super().__next__()
+        return RefJob(**converted)
