@@ -1,0 +1,32 @@
+# TODO explain
+
+# Workers could be either a number or a list that explicitly states a collection of attributes
+# If only a number is given, the workers are initialized with no attributes at the beginning.
+workers:
+  - active: true
+  - active: true
+    limit: 30.0
+  - active: true
+    limit: 30.0
+  - active: true
+    limit: 30.0
+
+# dispatcher component: either a string (fully qualified class name) or a collection with { class, args }
+# where class is fully qualified class name and args is list or dict holding constructor arguments
+dispatcher: experiments.user_experience.dispatcher.JobCategoryDispatcher
+
+# self-adapting strategy component (same format as dispatcher)
+sa_strategy:
+  class: experiments.user_experience.sa_strategy.CategorySelfAdaptingStrategy
+  args:
+    - 2  # max. number of long worker queues
+    - "@@ref_jobs"
+period: 60  # in seconds, how often a sa strategy (MAPE-K loop) is invoked
+
+# list of metric components (each one is in the same format as dispatcher)
+metrics:
+  - metrics.default.JobDelayMetricsCollector
+  - class: metrics.user_experience.UserExperienceMetricsCollector
+    args:
+      - "@@ref_jobs"
+      - [ 1.5, 3.0 ]  # thresholds

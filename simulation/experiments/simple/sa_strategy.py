@@ -8,13 +8,13 @@ class SimpleSelfAdaptingStrategy(SelfAdaptingStrategy):
     deactivates queues that are idle.
     """
 
-    def init(self, ts, workers):
+    def init(self, ts, dispatcher, workers):
         # At the beginning, make only the first worker active
         for worker in workers:
             worker.set_attribute("active", False)
         workers[0].set_attribute("active", True)
 
-    def mapek(self, ts, workers, job=None):
+    def mapek(self, ts, dispatcher, workers, job=None):
         # analyse the state of the worker queues
         active = 0
         overloaded = 0

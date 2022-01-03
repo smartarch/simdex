@@ -1,0 +1,24 @@
+# Configuration with simple dispatcher and simple self-adaptive strategy (just to demonstrate, how simulator works).
+# The SA strategy activates idle workers when the queues become saturated and closes them when they become empty
+# (i.e., saving energy when the system is not busy whilst maintaining maximal possible throughput).
+
+# Workers could be either a number or a list that explicitly states a collection of attributes
+# If only a number is given, the workers are initialized with no attributes at the beginning.
+workers:
+  - active: true
+  - active: false
+  - active: false
+  - active: false
+
+# dispatcher component: either a string (fully qualified class name) or a collection with { class, args }
+# where class is fully qualified class name and args is list or dict holding constructor arguments
+dispatcher: experiments.simple.dispatcher.SimpleDispatcher
+
+# self-adapting strategy component (same format as dispatcher)
+sa_strategy: experiments.simple.sa_strategy.SimpleSelfAdaptingStrategy
+period: 60  # in seconds, how often a sa strategy (MAPE-K loop) is invoked
+
+# list of metric components (each one is in the same format as dispatcher)
+metrics:
+  - metrics.default.JobDelayMetricsCollector
+  - metrics.default.PowerMetricsCollector

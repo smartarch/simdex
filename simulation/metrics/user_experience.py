@@ -1,4 +1,5 @@
 from interfaces import AbstractMetricsCollector
+from jobs import JobDurationIndex
 
 
 class UserExperienceMetricsCollector(AbstractMetricsCollector):
@@ -10,41 +11,22 @@ class UserExperienceMetricsCollector(AbstractMetricsCollector):
     All jobs are divided into 3 classes -- "ontime" :), "delayed" :|, and "late" :(
     """
 
-    def _add_job_to_index(self, job):
-        if job.exercise_id not in self.ref_jobs:
-            self.ref_jobs[job.exercise_id] = {"sum": 0.0, "count": 0.0}
-        self.ref_jobs[job.exercise_id]["sum"] += job.duration
-        self.ref_jobs[job.exercise_id]["count"] += 1.0
-
-        if job.exercise_id not in self.ref_jobs_runtimes:
-            self.ref_jobs_runtimes[job.exercise_id] = {}
-        if job.runtime_id not in self.ref_jobs_runtimes[job.exercise_id]:
-            self.ref_jobs_runtimes[job.exercise_id][job.runtime_id] = {"sum": 0.0, "count": 0.0}
-        self.ref_jobs_runtimes[job.exercise_id][job.runtime_id]["sum"] += job.duration
-        self.ref_jobs_runtimes[job.exercise_id][job.runtime_id]["count"] += 1.0
-
     def _get_expected_duration(self, job):
-        if job.exercise_id in self.ref_jobs_runtimes and job.runtime_id in self.ref_jobs_runtimes[job.exercise_id]:
-            rec = self.ref_jobs_runtimes[job.exercise_id][job.runtime_id]
-            return rec["sum"] / rec["count"]
+        estimate = self.duration_index.estimate_duration(job.exercise_id, job.runtime_id)
+        if estimate:
+            return estimate
 
-        if job.exercise_id in self.ref_jobs:
-            return self.ref_jobs[job.exercise_id]["sum"] / self.ref_jobs[job.exercise_id]["count"]
-
-        if job.compilation_ok:
-            return job.duration
-
-        return job.limits
+        return job.duration if job.compilation_ok else job.limits
 
     def __init__(self, ref_jobs, thresholds=[1.0, 2.0]):
         if (ref_jobs is None):
             raise RuntimeError("User experience metrics require ref. jobs to be loaded.")
 
-        self.ref_jobs = {}  # avg duration per exercise_id
-        self.ref_jobs_runtimes = {}  # avg duration per exercise_id and runtime_id
+        # create an index structure for job duration estimation
+        self.duration_index = JobDurationIndex()
         for job in ref_jobs:
             if job.compilation_ok:
-                self._add_job_to_index(job)
+                self.duration_index.add(job)
 
         # category thresholds as multipliers of expected durations
         self.threshold_ontime, self.threshold_delayed = thresholds
@@ -68,7 +50,7 @@ class UserExperienceMetricsCollector(AbstractMetricsCollector):
 
         # the metrics is adjusting the expectations of the job duration dynamically
         if job.compilation_ok:
-            self._add_job_to_index(job)
+            self.duration_index.add(job)
 
     def get_total_jobs(self):
         return self.jobs_ontime + self.jobs_delayed + self.jobs_late

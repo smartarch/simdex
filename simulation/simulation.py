@@ -35,6 +35,8 @@ class Simulation:
         self.dispatcher = _create_instance(configuration["dispatcher"], ref_jobs)
         if "sa_strategy" in configuration:
             self.sa_strategy = _create_instance(configuration["sa_strategy"], ref_jobs)
+        else:
+            self.sa_strategy = None  # strategy can be empty (i.e., no MAPE-K) for baseline ref. measurements
 
         # how often MAPE-K is called (in seconds)
         self.sa_period = float(configuration["period"]) if "period" in configuration else 60.0  # one minute is default
@@ -68,7 +70,7 @@ class Simulation:
         # initialize injected components
         self.dispatcher.init(self.ts, self.workers)
         if self.sa_strategy:
-            self.sa_strategy.init(self.ts, self.workers)
+            self.sa_strategy.init(self.ts, self.dispatcher, self.workers)
 
         # take an initial snapshot by the metrics collectors
         for metric in self.metrics:
@@ -94,7 +96,7 @@ class Simulation:
 
                 # invoke MAPE-K, the strategy can read and possibly update worker queues
                 if self.sa_strategy:
-                    self.sa_strategy.mapek(self.ts, self.workers)
+                    self.sa_strategy.mapek(self.ts, self.dispatcher, self.workers)
                 self.next_mapek_ts += self.sa_period
 
         self.ts = ts
@@ -115,7 +117,7 @@ class Simulation:
             # regular simulation step
             self.__advance_time(job.spawn_ts)
             if self.sa_strategy:  # mapek out of order (just before a job is dispatched)
-                self.sa_strategy.mapek(self.ts, self.workers, job)
+                self.sa_strategy.mapek(self.ts, self.dispatcher, self.workers, job)
             self.dispatcher.dispatch(job, self.workers)
         else:
             # let's wrap up the simulation

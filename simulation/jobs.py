@@ -192,3 +192,41 @@ class RefJobReader(ReaderBase):
     def __next__(self):
         converted = super().__next__()
         return RefJob(**converted)
+
+
+class JobDurationIndex:
+    """Structure that holds processed records of jobs divided into classes by exercise and runtime affiliations.
+
+    The structure is used to estimate durations of jobs (by their exercise and runtime).
+    """
+
+    def __init__(self):
+        self.jobs = {}  # duration (sum and count) per exercise_id
+        self.jobs_runtimes = {}  # duration (sum and count) per exercise_id and runtime_id
+
+    def add(self, job):
+        """Add another job or ref. job into the index. Its values are immediately processed"""
+
+        if job.exercise_id not in self.jobs:
+            self.jobs[job.exercise_id] = {"sum": 0.0, "count": 0.0}
+        self.jobs[job.exercise_id]["sum"] += job.duration
+        self.jobs[job.exercise_id]["count"] += 1.0
+
+        if job.exercise_id not in self.jobs_runtimes:
+            self.jobs_runtimes[job.exercise_id] = {}
+        if job.runtime_id not in self.jobs_runtimes[job.exercise_id]:
+            self.jobs_runtimes[job.exercise_id][job.runtime_id] = {"sum": 0.0, "count": 0.0}
+        self.jobs_runtimes[job.exercise_id][job.runtime_id]["sum"] += job.duration
+        self.jobs_runtimes[job.exercise_id][job.runtime_id]["count"] += 1.0
+
+    def estimate_duration(self, exercise_id, runtime_id):
+        """Retrieve estimated duration from the index. None is returned, if there are not enough data for the estimate."""
+
+        if exercise_id in self.jobs_runtimes and runtime_id in self.jobs_runtimes[exercise_id]:
+            rec = self.jobs_runtimes[exercise_id][runtime_id]
+            return rec["sum"] / rec["count"]
+
+        if exercise_id in self.jobs:
+            return self.jobs[exercise_id]["sum"] / self.jobs[exercise_id]["count"]
+
+        return None

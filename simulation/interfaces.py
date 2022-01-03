@@ -44,19 +44,23 @@ class SelfAdaptingStrategy:
     """Represents the controller used for self-adaptation of the system.
 
     The main part is hidden into mapek() method that represents one iteration of the MAPE-K loop.
-    The mapek() does not to perform the entire loop, in some invocations it can perform only data
+    The mapek() does not to always perform the entire loop, in some invocations it can perform only data
     gathering for instance.
     """
 
-    def init(self, ts, workers):
+    def init(self, ts, dispatcher, workers):
+        """Called once when the simulation starts."""
         pass
 
-    def mapek(self, ts, workers, job=None):
+    def mapek(self, ts, dispatcher, workers, job=None):
         """The main interface method called from the simulation.
 
         The method is called periodically (with job == None) and when new job is spawned
         (right before the job is dispatched).
-        The ts holds simulation time and workers is the list of all worker queues.
+        The ts holds simulation time, dispatcher and workers are the main objects of the simulation.
+        The mapek() call may choose to modify dispatcher and workers settings to change simulation behavior.
+        The workers use generic atribute abstraction, dispatcher is implemented along with the SA strategy,
+        so the user may design whatever interface is necessary between these two modules.
         """
         raise NotImplementedError
 

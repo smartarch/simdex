@@ -1,0 +1,19 @@
+# Configuration with simple dispatcher and no self-adaptive strategy (ref. baseline).
+# This configuration makes all 4 workers active and since there is no SA, they remain active the whole time.
+
+# Workers could be either a number or a list that explicitly states a collection of attributes
+# If only a number is given, the workers are initialized with no attributes at the beginning.
+workers:
+  - active: true
+  - active: true
+  - active: true
+  - active: true
+
+# dispatcher component: either a string (fully qualified class name) or a collection with { class, args }
+# where class is fully qualified class name and args is list or dict holding constructor arguments
+dispatcher: experiments.simple.dispatcher.SimpleDispatcher
+
+# list of metric components (each one is in the same format as dispatcher)
+metrics:
+  - metrics.default.JobDelayMetricsCollector
+  - metrics.default.PowerMetricsCollector
