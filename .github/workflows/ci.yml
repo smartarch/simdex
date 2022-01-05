@@ -15,18 +15,23 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - run: cd ./simulation
       - name: Install dependencies
+        working-directory: ./simulation
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Test simple experiment (no SA, 1 worker)
+        working-directory: ./simulation
         run: python3 ./main.py --config ./experiments/simple-no-sa-1worker.yaml ../data/release01-2021-12-29/data-sample.csv
       - name: Test simple experiment (no SA, 4 workers)
+        working-directory: ./simulation
         run: python3 ./main.py --config ./experiments/simple-no-sa-4worker.yaml ../data/release01-2021-12-29/data-sample.csv
       - name: Test simple experiment (self-adaptive)
+        working-directory: ./simulation
         run: python3 ./main.py --config ./experiments/simple-self-adaptive.yaml ../data/release01-2021-12-29/data-sample.csv
       - name: Test ux experiment (no SA)
+        working-directory: ./simulation
         run: python3 ./main.py --config ./experiments/user_experience-no-sa.yaml --refs ../data/release01-2021-12-29/ref-solutions.csv ../data/release01-2021-12-29/data-sample.csv
       - name: Test ux experiment (default)
+        working-directory: ./simulation
         run: python3 ./main.py --config ./experiments/user_experience.yaml --refs ../data/release01-2021-12-29/ref-solutions.csv ../data/release01-2021-12-29/data-sample.csv
