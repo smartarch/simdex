@@ -28,7 +28,7 @@ class CategorySelfAdaptingStrategy(SelfAdaptingStrategy):
 
         self._update_dispatcher(ts, dispatcher)
 
-    def mapek(self, ts, dispatcher, workers, job=None):
+    def do_adapt(self, ts, dispatcher, workers, job=None):
         self._update_dispatcher(ts, dispatcher)
         if (job and job.compilation_ok):
             dispatcher.add_ref_job(job)

@@ -96,7 +96,7 @@ class Simulation:
 
                 # invoke MAPE-K, the strategy can read and possibly update worker queues
                 if self.sa_strategy:
-                    self.sa_strategy.mapek(self.ts, self.dispatcher, self.workers)
+                    self.sa_strategy.do_adapt(self.ts, self.dispatcher, self.workers)
                 self.next_mapek_ts += self.sa_period
 
         self.ts = ts
@@ -116,8 +116,8 @@ class Simulation:
         if job:
             # regular simulation step
             self.__advance_time(job.spawn_ts)
-            if self.sa_strategy:  # mapek out of order (just before a job is dispatched)
-                self.sa_strategy.mapek(self.ts, self.dispatcher, self.workers, job)
+            if self.sa_strategy:  # run SA out of order (instantly, just before a job is dispatched)
+                self.sa_strategy.do_adapt(self.ts, self.dispatcher, self.workers, job)
             self.dispatcher.dispatch(job, self.workers)
         else:
             # let's wrap up the simulation

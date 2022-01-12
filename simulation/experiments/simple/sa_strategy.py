@@ -14,7 +14,7 @@ class SimpleSelfAdaptingStrategy(SelfAdaptingStrategy):
             worker.set_attribute("active", False)
         workers[0].set_attribute("active", True)
 
-    def mapek(self, ts, dispatcher, workers, job=None):
+    def do_adapt(self, ts, dispatcher, workers, job=None):
         # analyse the state of the worker queues
         active = 0
         overloaded = 0
@@ -31,7 +31,7 @@ class SimpleSelfAdaptingStrategy(SelfAdaptingStrategy):
                 inactive.append(worker)
 
         # take an action if necessary
-        if active > 1 and overloaded == 0 and empty:
+        if len(empty) > 1 and overloaded == 0 and empty:
             empty[0].set_attribute("active", False)  # put idle worker to sleep
         elif inactive and overloaded > 0:
             inactive[0].set_attribute("active", True)  # wake inactive worker

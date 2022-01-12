@@ -1,7 +1,22 @@
 # ReCodEx Backend Simulator
 
-A simulator of a backend of real system enhanced with self-adaptive interface which allows testing various strategies and scenarios.
+TODO
 
-## Getting started
+## Overview
 
-`pip install -r requirements.txt`
+### Implemented experiments
+
+### Predefined metrics
+
+---
+
+## Creating new experiments
+
+A quick guide how to create your own experiments using the simulator.
+
+### Yaml config file
+
+### Dispatcher and strategy classes
+
+### Defining new metrics
+
