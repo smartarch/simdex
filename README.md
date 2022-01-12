@@ -71,5 +71,5 @@ TODO
 
 ## More reading
 
-- [Simulator overview and quick guide to creating your own experiments](/smartarch/simdex/tree/main/simulation)
-- [Dataset details](/smartarch/simdex/tree/main/data)
+- [Simulator overview and quick guide to creating your own experiments](https://github.com/smartarch/simdex/tree/main/simulation)
+- [Dataset details](https://github.com/smartarch/simdex/tree/main/)
