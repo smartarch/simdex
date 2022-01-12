@@ -61,7 +61,7 @@ Total jobs: 398302, avg. delay: 14.168042374734924, max. delay: 13284.1320002079
 Simulation time: 133815360.0 s, relative workers uptime: 1.0498902368158634
 ```
 
-The SA version demonstrates only slight increase in job delays, but the power consumption is only `5\%` higher with respect to the minimal scenario with 1 worker.
+The SA version demonstrates only slight increase in job delays, but the power consumption is only `5%` higher with respect to the minimal scenario with 1 worker.
 
 
 ### User-experience scenario (using machine-learning)
@@ -71,5 +71,5 @@ TODO
 
 ## More reading
 
-- [Simulator overview and quick guide to creating your own experiments](simulator)
-- [Dataset details](data)
+- [Simulator overview and quick guide to creating your own experiments](/smartarch/simdex/tree/main/simulation)
+- [Dataset details](/smartarch/simdex/tree/main/data)
