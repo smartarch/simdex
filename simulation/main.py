@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import argparse
 import ruamel.yaml as yaml
 from jobs import JobReader, RefJobReader
@@ -32,6 +33,8 @@ if __name__ == "__main__":
     parser.add_argument("--config", type=str, required=True, help="Path to yaml file with simulation configuration.")
     parser.add_argument("--refs", type=str, required=False,
                         help="Path to .csv or .csv.gz file with log with jobs of reference solutions.")
+    parser.add_argument("--progress", default=False, action="store_true",
+                        help="If present, progress visualization is on.")
     args = parser.parse_args()
 
     # initialize the system
@@ -44,12 +47,17 @@ if __name__ == "__main__":
 
     # read data and run the simulation
     limit = args.limit
+    counter = 0
     for job in reader:
-        if limit <= 0:
+        if limit <= counter:
             break
         simulation.run(job)
-        limit -= 1
+        counter += 1
+        if args.progress and counter % 1000 == 0:
+            sys.stdout.write('.')
+            sys.stdout.flush()
 
+    print()
     simulation.run(None)  # end the simulation
     reader.close()
 

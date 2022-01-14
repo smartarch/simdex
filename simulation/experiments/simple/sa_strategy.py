@@ -2,10 +2,9 @@ from interfaces import SelfAdaptingStrategy
 
 
 class SimpleSelfAdaptingStrategy(SelfAdaptingStrategy):
-    """Represents the a simple SA controller.
+    """Represents a simple SA controller for activation/deactivation of queues based on current workload.
 
-    Activates suspended worker queues when the system gets staturated,
-    deactivates queues that are idle.
+    Activates suspended worker queues when the system gets staturated, deactivates queues that are idle.
     """
 
     def init(self, ts, dispatcher, workers):

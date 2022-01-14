@@ -1,4 +1,13 @@
-# TODO explain
+# Scenario where user experience based on job latency is the top criterium.
+# Short jobs needs to be evaluated almost interactively, long jobs may be delayed much longer.
+# The objective is achieved by imposing limits on queues, only jobs that are expected to
+# take no more than given limit are allowed in (all queues remain active the whole time).
+# The key part of the scenario is the duration estimation algorithm used by dispatcher.
+
+# This configuration uses job dispatcher and SA strategy that estimates job duration
+# based on previous jobs (including ref. jobs). The SA fills an index (estimation structure),
+# dispatcher uses the duration index to make the estimates.
+
 
 # Workers could be either a number or a list that explicitly states a collection of attributes
 # If only a number is given, the workers are initialized with no attributes at the beginning.

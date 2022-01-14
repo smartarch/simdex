@@ -66,10 +66,60 @@ The SA version demonstrates only slight increase in job delays, but the power co
 
 ### User-experience scenario (using machine-learning)
 
-TODO
+All the following experiments require also job logs of reference solutions (the `--refs` argument).
+
+The first baseline do no use self-adapting strategy, so job test limits (divided by 2) are used as the rough estimate.
+```
+$> python ./main.py --config ./experiments/user_experience-no-sa.yaml --refs ../data/release01-2021-12-29/ref-solutions.csv ../data/release01-2021-12-29/data.csv.gz
+
+Total jobs: 398302, avg. delay: 89.47350952287265, max. delay: 34924.11799955368
+Total jobs: 398302, on time: 382615, delayed: 2461, late: 13226
+```
+
+The second baseline uses oracle instead of machine-learning model. The oracle represents ultimate predictor since it breaches simulation causality and reads the job duration value before the job is actually processed. This experiment is not realistic, but it helps us find the best possible (theoretical) performance for this particular setup.
+```
+$> python ./main.py --config ./experiments/user_experience-oracle.yaml --refs ../data/release01-2021-12-29/ref-solutions.csv ../data/release01-2021-12-29/data.csv.gz
+
+Total jobs: 398302, avg. delay: 52.17845850431202, max. delay: 34611.763999938965
+Total jobs: 398302, on time: 388244, delayed: 1940, late: 8118
+```
+
+The first machine-learning model based on simple statistics of the history of jobs:
+```
+$> python ./main.py --config ./experiments/user_experience.yaml --refs ../data/release01-2021-12-29/ref-solutions.csv ../data/release01-2021-12-29/data.csv.gz
+
+Total jobs: 398302, avg. delay: 62.089308951997175, max. delay: 34752.292999982834
+Total jobs: 398302, on time: 387502, delayed: 1928, late: 8872
+```
+
+This model exhibits significant improvement over the non-SA baseline and we can also see it is not that far from the optimum established by the oracle baseline.
+
+> The last experiment uses [TensorFlow](https://www.tensorflow.org/) framework for machine learning. We this requirement separately, since TF is rather large and takes some time to install. However, it can be installed easily using pip as follows.
+
+```
+$> pip install numpy tensorflow
+```
+
+The experiment was tested with TensorFlow 2.7. You may verify your version as 
+```
+$> python
+>>> import tensorflow as tf
+>>> print(tf.version.VERSION)
+2.7.0
+```
+
+The experiment with neural network duration estimator takes significantly more time than the previous experiments (even with a GPU). It is recommended to use `--progress` switch that makes the script print out a dot `.` after every `1000` jobs. 
+```
+$> python ./main.py --config ./experiments/user_experience_nn.yaml --refs ../data/release01-2021-12-29/ref-solutions.csv --progress ../data/release01-2021-12-29/data.csv.gz
+..............................................................................................................................................................................................................................................................................................................................................................................................................
+Total jobs: 398302, avg. delay: 55.39687156005332, max. delay: 34723.453000068665
+Total jobs: 398302, on time: 387216, delayed: 1928, late: 9158
+```
+
+The NN-model exhibits only slightly worse performance than simple statistical model; however, the main objective was to demonstrate applicability of machine-learning methods in our simulator. It might be possible to improve this model further. We would like to also mention that this model is not completely deterministic as the NN is trained by partially stochastic algorithms. I.e., subsequent runs may yield slightly different results.
 
 
 ## More reading
 
 - [Simulator overview and quick guide to creating your own experiments](https://github.com/smartarch/simdex/tree/main/simulation)
-- [Dataset details](https://github.com/smartarch/simdex/tree/main/)
+- [Dataset details](https://github.com/smartarch/simdex/tree/main/data)

@@ -4,8 +4,10 @@
 # take no more than given limit are allowed in (all queues remain active the whole time).
 # The key part of the scenario is the duration estimation algorithm used by dispatcher.
 
-# This baseline configuration uses only a job dispatcher (no SA) that estimates job duration
-# based on the job limits.
+# This configuration uses job dispatcher with oracle that can guess the exact duration of a job.
+# The oracle is implemented by cheating, the estimate is taken from job.duration which should
+# not be accessed in dispatching in regular experiments.
+# The purpose of this configuration is to measure performance of the theoretical optimum as a reference point.
 
 # Workers could be either a number or a list that explicitly states a collection of attributes
 # If only a number is given, the workers are initialized with no attributes at the beginning.
@@ -20,7 +22,7 @@ workers:
 
 # dispatcher component: either a string (fully qualified class name) or a collection with { class, args }
 # where class is fully qualified class name and args is list or dict holding constructor arguments
-dispatcher: experiments.user_experience.dispatcher.JobCategoryDispatcher
+dispatcher: experiments.user_experience.dispatcher.OracleJobCategoryDispatcher
 
 # list of metric components (each one is in the same format as dispatcher)
 metrics:

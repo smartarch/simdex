@@ -2,10 +2,11 @@ from interfaces import SelfAdaptingStrategy
 
 
 class CategorySelfAdaptingStrategy(SelfAdaptingStrategy):
-    """Represents the a simple SA controller.
+    """Represents a SA controller that uses simple machine learning.
 
-    Activates suspended worker queues when the system gets staturated,
-    deactivates queues that are idle.
+    Collects job and ref. job metadata to compute categorized statistics of job duration based on their
+    affiliation to exercises and runtimes. These statistics are used by dispatcher for predicting the duration
+    of incomming jobs.
     """
 
     def __init__(self, max_long_queues, ref_jobs):
@@ -20,12 +21,6 @@ class CategorySelfAdaptingStrategy(SelfAdaptingStrategy):
                 dispatcher.add_ref_job(job)
 
     def init(self, ts, dispatcher, workers):
-        # At the beginning, make only the first worker active
-        for worker in workers:
-            worker.set_attribute("active", True)
-            worker.set_attribute("limit", 30.0)
-        workers[0].set_attribute("limit", None)
-
         self._update_dispatcher(ts, dispatcher)
 
     def do_adapt(self, ts, dispatcher, workers, job=None):

@@ -2,6 +2,8 @@ from interfaces import AbstractDispatcher
 
 
 class SimpleDispatcher(AbstractDispatcher):
+    """Dispatches new jobs into the shortest active queue."""
+
     def init(self, ts, workers):
         pass
 
