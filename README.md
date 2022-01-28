@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/smartarch/recodex-dataset/workflows/CI/badge.svg)](https://github.com/smartarch/recodex-dataset/actions)
 
-This repository contains:
+This repository contains an artifact described in a paper called *Simdex: A Simulator of a Real Self-adaptive Job-dispatching System Backend*, which was submitted to SEAMS conference, and it comprise:
 - A simulator of a job-processing backend of a real system enhanced with self-adaptive interface which allows testing various strategies and scenarios.
 - A dataset comprise a log of workloads metadata of real users collected from our instance of [ReCodEx](https://github.com/recodex) (a system for evaluation of coding assignments). The simulator can replay the logs which provides rather unique evaluation based on real data.
 
@@ -17,7 +17,7 @@ $> cd ./simulation
 $> pip3 install -r ./requirements.txt
 ```
 
-Kick the tires (check the scripts are running):
+Quick check the scripts are running (on dataset sample):
 ```
 $> python3 ./main.py --config ./experiments/simple-no-sa-1worker.yaml ../data/release01-2021-12-29/data-sample.csv
 
@@ -106,7 +106,7 @@ Total jobs: 398302, on time: 387502, delayed: 1928, late: 8872
 
 This model exhibits significant improvement over the non-SA baseline and we can also see it is not that far from the optimum established by the oracle baseline.
 
-> The last experiment uses [TensorFlow](https://www.tensorflow.org/) framework for machine learning. We this requirement separately, since TF is rather large and takes some time to install. However, it can be installed easily using pip as follows.
+> The last experiment uses [TensorFlow](https://www.tensorflow.org/) framework for machine learning. We this requirement separately, since TensorFlow is rather large and takes some time to install. However, it can be installed easily using pip as follows.
 
 ```
 $> pip3 install numpy tensorflow
