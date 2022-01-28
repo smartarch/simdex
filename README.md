@@ -106,7 +106,7 @@ Total jobs: 398302, on time: 387502, delayed: 1928, late: 8872
 
 This model exhibits significant improvement over the non-SA baseline and we can also see it is not that far from the optimum established by the oracle baseline.
 
-> The last experiment uses [TensorFlow](https://www.tensorflow.org/) framework for machine learning. We this requirement separately, since TensorFlow is rather large and takes some time to install. However, it can be installed easily using pip as follows.
+> The last experiment uses [TensorFlow](https://www.tensorflow.org/) framework for machine learning. We have placed this requirement separately, since TensorFlow is rather large and takes some time to install. However, it can be installed easily using pip as follows.
 
 ```
 $> pip3 install numpy tensorflow
