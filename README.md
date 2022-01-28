@@ -2,9 +2,9 @@
 
 [![Build Status](https://github.com/smartarch/recodex-dataset/workflows/CI/badge.svg)](https://github.com/smartarch/recodex-dataset/actions)
 
-This repository contains an artifact described in a paper called *Simdex: A Simulator of a Real Self-adaptive Job-dispatching System Backend*, which was submitted to SEAMS conference, and it comprise:
-- A simulator of a job-processing backend of a real system enhanced with self-adaptive interface which allows testing various strategies and scenarios.
-- A dataset comprise a log of workloads metadata of real users collected from our instance of [ReCodEx](https://github.com/recodex) (a system for evaluation of coding assignments). The simulator can replay the logs which provides rather unique evaluation based on real data.
+This repository contains an artifact described in a paper called *Simdex: A Simulator of a Real Self-adaptive Job-dispatching System Backend*, which was submitted to SEAMS conference, and it comprises:
+- A simulator of a job-processing backend of a real system enhanced with a self-adaptive interface which allows testing various strategies and scenarios.
+- A dataset comprises a log of workloads metadata of real users collected from our instance of [ReCodEx](https://github.com/recodex) (a system for evaluation of coding assignments). The simulator can replay the logs, which provides rather unique evaluation based on real data.
 
 
 ## Getting started
@@ -37,8 +37,8 @@ The data file is `.csv` or `.csv.gz` file that must be in the same format as [ou
 
 Additional options recognized by the main script:
 - `--refs` option holds one string value -- a path to reference solutions data file (`.csv` or `.csv.gz`), please note that ref. solutions must be loaded for some experiments
-- `--limit` option holds one integer which is a maximal number of rows loaded from the data file (allows to restrict the number of simulated jobs)
-- `--progress` is a bool flag which enables progress printouts to std. output (particularly useful for ML experiments that take a long time to process)
+- `--limit` option holds one integer, which is a maximal number of rows loaded from the data file (allows to restrict the number of simulated jobs)
+- `--progress` is a bool flag that enables progress printouts to std. output (particularly useful for ML experiments that take a long time to process)
 
 The examples of experiments provided with the simulator can be invoked as follows. Most of the following experiments require less than 30s to process on common desktop computers and laptops.
 
@@ -78,9 +78,9 @@ The SA version demonstrates only slight increase in job delays, but the power co
 
 ### User-experience scenario (using machine-learning)
 
-All the following experiments require also job logs of reference solutions (the `--refs` argument).
+All the following experiments also require job logs of reference solutions (the `--refs` argument).
 
-The first baseline do no use self-adapting strategy, so job test limits (divided by 2) are used as the rough estimate.
+The first baseline does not use a self-adapting strategy, so job test limits (divided by 2) are used as the rough estimate.
 ```
 $> python3 ./main.py --config ./experiments/user_experience-no-sa.yaml --refs ../data/release01-2021-12-29/ref-solutions.csv ../data/release01-2021-12-29/data.csv.gz
 
@@ -128,7 +128,7 @@ Total jobs: 398302, avg. delay: 55.39687156005332, max. delay: 34723.45300006866
 Total jobs: 398302, on time: 387216, delayed: 1928, late: 9158
 ```
 
-The NN-model exhibits only slightly worse performance than simple statistical model; however, the main objective was to demonstrate applicability of machine-learning methods in our simulator. It might be possible to improve this model further. We would like to also mention that this model is not completely deterministic as the NN is trained by partially stochastic algorithms. I.e., subsequent runs may yield slightly different results.
+The NN-model exhibits only slightly worse performance than the simple statistical model; however, the main objective was to demonstrate the applicability of machine-learning methods in our simulator. It might be possible to improve this model further. We would like to also mention that this model is not completely deterministic as the NN is trained by partially stochastic algorithms. I.e., subsequent runs may yield slightly different results.
 
 
 ## More reading
