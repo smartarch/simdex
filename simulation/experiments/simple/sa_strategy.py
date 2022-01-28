@@ -1,7 +1,7 @@
-from interfaces import SelfAdaptingStrategy
+from interfaces import AbstractSelfAdaptingStrategy
 
 
-class SimpleSelfAdaptingStrategy(SelfAdaptingStrategy):
+class SimpleSelfAdaptingStrategy(AbstractSelfAdaptingStrategy):
     """Represents a simple SA controller for activation/deactivation of queues based on current workload.
 
     Activates suspended worker queues when the system gets staturated, deactivates queues that are idle.

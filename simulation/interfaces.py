@@ -40,7 +40,7 @@ class AbstractDispatcher:
         raise NotImplementedError
 
 
-class SelfAdaptingStrategy:
+class AbstractSelfAdaptingStrategy:
     """Represents the controller used for self-adaptation of the system.
 
     The main part is hidden into do_adapt() method that is used both for monitoring (collecing data)

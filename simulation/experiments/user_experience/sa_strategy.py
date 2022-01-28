@@ -1,7 +1,7 @@
-from interfaces import SelfAdaptingStrategy
+from interfaces import AbstractSelfAdaptingStrategy
 
 
-class CategorySelfAdaptingStrategy(SelfAdaptingStrategy):
+class CategorySelfAdaptingStrategy(AbstractSelfAdaptingStrategy):
     """Represents a SA controller that uses simple machine learning.
 
     Collects job and ref. job metadata to compute categorized statistics of job duration based on their

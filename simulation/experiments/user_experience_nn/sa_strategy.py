@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from interfaces import SelfAdaptingStrategy
+from interfaces import AbstractSelfAdaptingStrategy
 
 
 def _get_category_encoding_layer(size):
@@ -40,7 +40,7 @@ def _jobs_to_tensors(jobs):
     return tf.convert_to_tensor(x, dtype=tf.int32), tf.convert_to_tensor(y, dtype=tf.float32)
 
 
-class CategorySelfAdaptingStrategy(SelfAdaptingStrategy):
+class CategorySelfAdaptingStrategy(AbstractSelfAdaptingStrategy):
     """Uses machine-learning neural-network regression model to predict the job duration.
 
     The model is trained in SA and used by dispatcher (via estimation function interface).

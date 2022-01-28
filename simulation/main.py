@@ -45,6 +45,10 @@ if __name__ == "__main__":
     reader = JobReader()
     reader.open(args.input_file)
 
+    if args.progress:
+        sys.stdout.write("Simulation started ")
+        sys.stdout.flush()
+
     # read data and run the simulation
     limit = args.limit
     counter = 0
