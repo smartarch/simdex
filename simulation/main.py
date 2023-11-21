@@ -2,7 +2,7 @@
 
 import sys
 import argparse
-import ruamel.yaml as yaml
+from ruamel.yaml import YAML
 from jobs import JobReader, RefJobReader
 from simulation import Simulation
 
@@ -10,7 +10,8 @@ from simulation import Simulation
 def get_configuration(config_file):
     with open(config_file, "r") as stream:
         try:
-            return yaml.safe_load(stream)
+            yaml = YAML(typ='safe', pure=True)
+            return yaml.load(stream)
         except yaml.YAMLError as e:
             print("Simulation config file {} is not in YAML format.".format(config_file))
             print(e)
