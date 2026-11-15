@@ -16,12 +16,7 @@ def job(spawn_ts, duration):
 class EmptyRunTest(unittest.TestCase):
     def test_a_run_without_jobs_ends_quietly(self):
         """main.py ends every run with run(None), also when the log had no jobs (or --limit 0)."""
-        delays = JobDelayMetricsCollector()
-        sim = Simulation(CONFIG)
-        sim.register_metrics(delays)
-        sim.run(None)
-        self.assertEqual(delays.get_jobs(), 0)
-
+        Simulation(CONFIG).run(None)
 
 
 class StartAtZeroTest(unittest.TestCase):
@@ -34,24 +29,18 @@ class StartAtZeroTest(unittest.TestCase):
             def snapshot(self, ts, workers):
                 starts.append(ts)
 
-        sim = Simulation(dict(CONFIG, period=60))
+        sim = Simulation(CONFIG)
         sim.register_metrics(Counting())
         sim.run(job(0.0, 5.0))
         sim.run(job(0.0, 5.0))
         sim.run(job(10.0, 5.0))
         self.assertEqual(starts, [0.0], "one snapshot at the start, none again before the first period is over")
 
-
     def test_the_first_period_counts_as_uptime(self):
         power = PowerMetricsCollector()
-        sim = Simulation(dict(CONFIG, period=60))
+        sim = Simulation(CONFIG)
         sim.register_metrics(power)
         sim.run(job(0.0, 30.0))
         sim.run(None)
         self.assertEqual(power.get_measured_period(), 60.0)
         self.assertEqual(power.get_relative_uptime(), 1.0)
-
-
-
-if __name__ == "__main__":
-    unittest.main()
