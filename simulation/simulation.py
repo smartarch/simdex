@@ -54,6 +54,7 @@ class Simulation:
                 self.workers.append(WorkerQueue())
 
         # remaining simulation variables
+        self.started = False  # (not "ts == 0.0": a log may well start at time zero)
         self.ts = 0.0  # simulation time
         self.next_mapek_ts = 0.0  # when the next MAPE-K call is scheduled
 
@@ -64,6 +65,7 @@ class Simulation:
 
     def __start_simulation(self, ts):
         """Just-in-time initialization."""
+        self.started = True
         self.ts = ts
         self.next_mapek_ts = ts + self.sa_period
 
@@ -110,7 +112,9 @@ class Simulation:
         """
 
         # first run, initialize simulation
-        if self.ts == 0.0:
+        if not self.started:
+            if job is None:
+                return  # no job was ever given: there is nothing to wrap up
             self.__start_simulation(job.spawn_ts)
 
         if job:

@@ -10,7 +10,7 @@ class PowerMetricsCollector(AbstractMetricsCollector):
         self.uptime = 0.0  # total sum of time when servers were up
 
     def snapshot(self, ts, workers):
-        if self.last_ts:
+        if self.last_ts is not None:  # (0.0 is a time like any other)
             dt = max(ts - self.last_ts, 0)
             active_workers = len(list(filter(lambda w: w.get_attribute("active"), workers)))
             self.period += dt
